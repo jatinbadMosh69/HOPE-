@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HOPE Hospital — Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --navy: #0a2540;
+  --navy-mid: #1a3a5c;
+  --blue: #1d6fa4;
+  --blue-light: #e8f2f9;
+  --accent: #c8973a;
+  --accent-soft: #fdf6ec;
+  --white: #ffffff;
+  --off-white: #f7f8fa;
+  --gray-100: #f0f2f5;
+  --gray-200: #e2e6ea;
+  --gray-400: #9aa5b4;
+  --gray-600: #627282;
+  --gray-800: #2d3748;
+  --text: #1a202c;
+  --text-sub: #4a5568;
+  --green: #276749;
+  --green-soft: #edf7f1;
+  --red: #9b2335;
+  --red-soft: #fef2f4;
+  --orange: #c05621;
+  --orange-soft: #fef5ef;
+  --sidebar: 240px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:var(--off-white);line-height:1.6;-webkit-font-smoothing:antialiased;}
+
+/* SIDEBAR */
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar);height:100vh;background:var(--navy);display:flex;flex-direction:column;z-index:200;overflow-y:auto;}
+.sb-brand{padding:26px 22px 20px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.sb-brand .name{font-family:'Merriweather',serif;font-size:1.3rem;font-weight:700;color:#fff;letter-spacing:0.5px;}
+.sb-brand .sub{font-size:0.68rem;color:rgba(255,255,255,0.35);letter-spacing:2px;text-transform:uppercase;margin-top:3px;}
+.ng{padding:20px 14px 0;}
+.ng-label{font-size:0.64rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.28);padding:0 8px;margin-bottom:5px;}
+.nl{display:flex;align-items:center;gap:9px;padding:8px 8px;border-radius:5px;color:rgba(255,255,255,0.55);font-size:0.83rem;cursor:pointer;background:none;border:none;width:100%;text-align:left;font-family:'Inter',sans-serif;transition:all 0.12s;margin-bottom:1px;}
+.nl:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.85);}
+.nl.active{background:rgba(255,255,255,0.1);color:#fff;font-weight:500;border-left:2px solid var(--accent);padding-left:6px;}
+.nl .ic{font-size:0.82rem;width:16px;text-align:center;}
+.nc{margin-left:auto;font-size:0.68rem;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);padding:1px 6px;border-radius:8px;}
+.sb-foot{margin-top:auto;padding:14px;border-top:1px solid rgba(255,255,255,0.08);}
+.u-row{display:flex;align-items:center;gap:9px;padding:8px;}
+.u-av{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.75);flex-shrink:0;}
+.u-name{font-size:0.8rem;color:rgba(255,255,255,0.75);font-weight:500;}
+.u-role{font-size:0.68rem;color:rgba(255,255,255,0.3);}
+
+/* MAIN */
+#main{margin-left:var(--sidebar);min-height:100vh;display:flex;flex-direction:column;}
+#topbar{height:58px;background:#fff;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:100;}
+.tb-l .tp{font-size:0.86rem;font-weight:600;color:var(--text);}
+.tb-l .ts{font-size:0.7rem;color:var(--gray-400);margin-top:1px;}
+.tb-r{display:flex;align-items:center;gap:8px;}
+#content{padding:28px;flex:1;}
+
+/* PAGES */
+.page{display:none;}.page.active{display:block;animation:fu 0.2s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+
+/* PAGE HEADER */
+.ph{margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--gray-200);display:flex;align-items:flex-end;justify-content:space-between;}
+.ph h2{font-family:'Merriweather',serif;font-size:1.35rem;font-weight:700;color:var(--navy);}
+.ph p{font-size:0.8rem;color:var(--gray-600);margin-top:3px;}
+
+/* WELCOME */
+.ws{background:var(--navy);border-radius:7px;padding:24px 30px;margin-bottom:26px;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;}
+.ws::after{content:'';position:absolute;right:0;top:0;bottom:0;width:120px;background:linear-gradient(to right,transparent,rgba(255,255,255,0.02));}
+.ws-l h2{font-family:'Merriweather',serif;font-size:1.1rem;font-weight:300;font-style:italic;color:rgba(255,255,255,0.88);margin-bottom:4px;}
+.ws-l p{font-size:0.75rem;color:rgba(255,255,255,0.38);}
+.ws-r .day{font-family:'Merriweather',serif;font-size:2.2rem;color:rgba(255,255,255,0.88);line-height:1;text-align:right;}
+.ws-r .mo{font-size:0.72rem;color:rgba(255,255,255,0.38);letter-spacing:1px;text-transform:uppercase;text-align:right;}
+
+/* STATS */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px;}
+.st{background:#fff;border:1px solid var(--gray-200);border-radius:7px;padding:18px;transition:box-shadow 0.2s;}
+.st:hover{box-shadow:0 3px 12px rgba(0,0,0,0.06);}
+.st-label{font-size:0.68rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gray-400);margin-bottom:9px;}
+.st-val{font-family:'Merriweather',serif;font-size:1.9rem;font-weight:700;color:var(--navy);line-height:1;}
+.st-meta{font-size:0.72rem;color:var(--gray-600);margin-top:5px;}
+.st-bar{height:2px;background:var(--gray-100);border-radius:1px;margin-top:14px;overflow:hidden;}
+.st-fill{height:100%;border-radius:1px;}
+
+/* CARD */
+.card{background:#fff;border:1px solid var(--gray-200);border-radius:7px;overflow:hidden;margin-bottom:18px;}
+.ch{padding:14px 20px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;}
+.ch h4{font-size:0.72rem;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:1px;}
+.ch span{font-size:0.72rem;color:var(--gray-400);}
+.dash-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;}
+.tbl thead th{padding:9px 18px;text-align:left;font-size:0.66rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gray-400);background:var(--gray-100);border-bottom:1px solid var(--gray-200);}
+.tbl tbody tr{border-bottom:1px solid var(--gray-200);transition:background 0.1s;}
+.tbl tbody tr:last-child{border-bottom:none;}
+.tbl tbody tr:hover{background:var(--off-white);}
+.tbl tbody td{padding:11px 18px;font-size:0.82rem;color:var(--text-sub);vertical-align:middle;}
+.primary{font-weight:500;color:var(--text);}
+.secondary{font-size:0.73rem;color:var(--gray-400);margin-top:1px;}
+.erow td{padding:36px 20px;text-align:center;color:var(--gray-400);font-size:0.82rem;}
+
+/* AVATAR */
+.avc{display:flex;align-items:center;gap:9px;}
+.av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:600;color:#fff;flex-shrink:0;}
+
+/* BADGE */
+.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:0.7rem;font-weight:600;letter-spacing:0.3px;text-transform:uppercase;}
+.bg{background:var(--green-soft);color:var(--green);}
+.bb{background:var(--blue-light);color:var(--blue);}
+.bo{background:var(--orange-soft);color:var(--orange);}
+.br{background:var(--red-soft);color:var(--red);}
+.bgy{background:var(--gray-100);color:var(--gray-600);}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:4px;font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:500;cursor:pointer;border:none;transition:all 0.12s;letter-spacing:0.2px;}
+.btn-p{background:var(--navy);color:#fff;}.btn-p:hover{background:var(--navy-mid);}
+.btn-o{background:transparent;color:var(--navy);border:1px solid var(--gray-200);}.btn-o:hover{background:var(--gray-100);}
+.btn-g{background:transparent;color:var(--gray-600);border:1px solid var(--gray-200);}.btn-g:hover{background:var(--gray-100);}
+.btn-sm{padding:5px 11px;font-size:0.76rem;}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;gap:9px;margin-bottom:14px;flex-wrap:wrap;}
+.sb{flex:1;min-width:200px;position:relative;}
+.sb svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--gray-400);pointer-events:none;}
+.si{width:100%;padding:7px 11px 7px 30px;border:1px solid var(--gray-200);border-radius:4px;font-size:0.82rem;font-family:'Inter',sans-serif;color:var(--text);background:#fff;transition:border 0.12s;}
+.si:focus{outline:none;border-color:var(--blue);}
+.si::placeholder{color:var(--gray-400);}
+.sf{padding:7px 10px;border:1px solid var(--gray-200);border-radius:4px;font-size:0.8rem;font-family:'Inter',sans-serif;color:var(--text);background:#fff;cursor:pointer;}
+.sf:focus{outline:none;border-color:var(--blue);}
+
+/* FORMS */
+.fg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fg.full{grid-column:1/-1;}
+.fg label{font-size:0.73rem;font-weight:600;color:var(--gray-800);letter-spacing:0.2px;}
+.fg label .req{color:var(--red);}
+.fc{padding:7px 10px;border:1px solid var(--gray-200);border-radius:4px;font-size:0.82rem;font-family:'Inter',sans-serif;color:var(--text);background:#fff;transition:border 0.12s;}
+.fc:focus{outline:none;border-color:var(--blue);}
+.fc::placeholder{color:var(--gray-400);}
+textarea.fc{min-height:76px;resize:vertical;}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(10,37,64,0.5);z-index:500;align-items:flex-start;justify-content:center;padding:50px 20px;overflow-y:auto;}
+.overlay.open{display:flex;}
+.modal{background:#fff;border-radius:7px;width:100%;max-width:560px;box-shadow:0 16px 48px rgba(0,0,0,0.18);animation:mi 0.18s ease;}
+@keyframes mi{from{opacity:0;transform:translateY(-10px) scale(0.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+.mh{padding:18px 22px 14px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;}
+.mh h3{font-family:'Merriweather',serif;font-size:0.98rem;font-weight:700;color:var(--navy);}
+.mc{width:26px;height:26px;border-radius:4px;border:1px solid var(--gray-200);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.82rem;color:var(--gray-600);transition:background 0.12s;}
+.mc:hover{background:var(--gray-100);}
+.mb{padding:20px 22px;}
+.mf{padding:13px 22px;border-top:1px solid var(--gray-200);display:flex;justify-content:flex-end;gap:8px;}
+
+/* TOAST */
+#toast{position:fixed;bottom:22px;right:22px;background:var(--navy);color:rgba(255,255,255,0.88);padding:11px 16px;border-radius:5px;font-size:0.8rem;box-shadow:0 6px 20px rgba(0,0,0,0.18);border-left:3px solid var(--accent);transform:translateY(50px);opacity:0;transition:all 0.28s ease;z-index:999;pointer-events:none;max-width:280px;}
+#toast.show{transform:translateY(0);opacity:1;}
+
+/* INLINE SELECT */
+.ins{padding:3px 7px;border:1px solid var(--gray-200);border-radius:3px;font-size:0.75rem;font-family:'Inter',sans-serif;color:var(--text);cursor:pointer;background:#fff;}
+.ins:focus{outline:none;border-color:var(--blue);}
+
+@media(max-width:900px){.sg{grid-template-columns:1fr 1fr;}.dash-2{grid-template-columns:1fr;}}
+@media(max-width:640px){#sidebar{transform:translateX(-100%);}#main{margin-left:0;}#content{padding:16px;}.sg{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<aside id="sidebar">
+  <div class="sb-brand">
+    <div class="name">HOPE</div>
+    <div class="sub">Hospital Management</div>
+  </div>
+  <div class="ng">
+    <div class="ng-label">Overview</div>
+    <button class="nl active" onclick="goTo('dashboard',this)"><span class="ic">▸</span>Dashboard</button>
+  </div>
+  <div class="ng">
+    <div class="ng-label">Patient Care</div>
+    <button class="nl" onclick="goTo('patients',this)"><span class="ic">▸</span>Patients<span class="nc" id="cnt-p">0</span></button>
+    <button class="nl" onclick="goTo('appointments',this)"><span class="ic">▸</span>Appointments<span class="nc" id="cnt-a">0</span></button>
+  </div>
+  <div class="ng">
+    <div class="ng-label">Administration</div>
+    <button class="nl" onclick="goTo('staff',this)"><span class="ic">▸</span>Staff Directory</button>
+    <button class="nl" onclick="goTo('billing',this)"><span class="ic">▸</span>Billing &amp; Payments</button>
+  </div>
+  <div class="sb-foot">
+    <div class="u-row">
+      <div class="u-av">AD</div>
+      <div><div class="u-name">Administrator</div><div class="u-role">System Admin</div></div>
+    </div>
+  </div>
+</aside>
+
+<div id="main">
+  <header id="topbar">
+    <div class="tb-l">
+      <div class="tp" id="ptitle">Dashboard</div>
+      <div class="ts" id="psub">HOPE Hospital Management System</div>
+    </div>
+    <div class="tb-r">
+      <button class="btn btn-o btn-sm" id="tbadd" style="display:none" onclick="topAdd()">+ Add Record</button>
+    </div>
+  </header>
+
+  <div id="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="ws">
+        <div class="ws-l">
+          <h2>Good morning, Administrator.</h2>
+          <p id="ws-full">HOPE Hospital Management System</p>
+        </div>
+        <div class="ws-r">
+          <div class="day" id="ws-day">—</div>
+          <div class="mo" id="ws-mo">—</div>
+        </div>
+      </div>
+      <div class="sg">
+        <div class="st"><div class="st-label">Total Patients</div><div class="st-val" id="d-p">0</div><div class="st-meta">Registered in system</div><div class="st-bar"><div class="st-fill" id="db-p" style="width:0%;background:var(--blue)"></div></div></div>
+        <div class="st"><div class="st-label">Today's Appointments</div><div class="st-val" id="d-a">0</div><div class="st-meta">Scheduled for today</div><div class="st-bar"><div class="st-fill" id="db-a" style="width:0%;background:var(--green)"></div></div></div>
+        <div class="st"><div class="st-label">Active Staff</div><div class="st-val" id="d-s">0</div><div class="st-meta">Doctors, nurses &amp; support</div><div class="st-bar"><div class="st-fill" id="db-s" style="width:0%;background:var(--accent)"></div></div></div>
+        <div class="st"><div class="st-label">Revenue (Paid)</div><div class="st-val" id="d-r" style="font-size:1.4rem">₹0</div><div class="st-meta">From settled bills</div><div class="st-bar"><div class="st-fill" id="db-r" style="width:0%;background:var(--red)"></div></div></div>
+      </div>
+      <div class="dash-2">
+        <div class="card"><div class="ch"><h4>Recent Appointments</h4><span id="da-ct">0 records</span></div>
+          <table class="tbl"><thead><tr><th>Patient</th><th>Physician</th><th>Time</th><th>Status</th></tr></thead><tbody id="d-ab"></tbody></table>
+        </div>
+        <div class="card"><div class="ch"><h4>Recent Billing</h4><span id="db-ct">0 records</span></div>
+          <table class="tbl"><thead><tr><th>Patient</th><th>Amount</th><th>Status</th></tr></thead><tbody id="d-bb"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PATIENTS -->
+    <div class="page" id="page-patients">
+      <div class="ph"><div><h2>Patient Records</h2><p>Manage registered patients and their medical information</p></div>
+        <button class="btn btn-p btn-sm" onclick="openM('m-p')">+ Register Patient</button></div>
+      <div class="toolbar">
+        <div class="sb"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="si" id="p-q" placeholder="Search by name, ID or phone..." oninput="rP()"/></div>
+        <select class="sf" id="p-f" onchange="rP()"><option value="">All Status</option><option>Active</option><option>Admitted</option><option>Discharged</option></select>
+      </div>
+      <div class="card"><table class="tbl"><thead><tr><th>Patient</th><th>Age / Gender</th><th>Phone</th><th>Blood Group</th><th>Status</th><th>Actions</th></tr></thead><tbody id="pb"></tbody></table></div>
+    </div>
+
+    <!-- APPOINTMENTS -->
+    <div class="page" id="page-appointments">
+      <div class="ph"><div><h2>Appointments</h2><p>Schedule and manage patient visits with medical staff</p></div>
+        <button class="btn btn-p btn-sm" onclick="openM('m-a')">+ Schedule Appointment</button></div>
+      <div class="toolbar">
+        <div class="sb"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="si" id="a-q" placeholder="Search by patient or physician..." oninput="rA()"/></div>
+        <select class="sf" id="a-f" onchange="rA()"><option value="">All Status</option><option>Scheduled</option><option>Completed</option><option>Cancelled</option></select>
+      </div>
+      <div class="card"><table class="tbl"><thead><tr><th>Patient</th><th>Physician</th><th>Date &amp; Time</th><th>Department</th><th>Priority</th><th>Status</th><th></th></tr></thead><tbody id="ab"></tbody></table></div>
+    </div>
+
+    <!-- STAFF -->
+    <div class="page" id="page-staff">
+      <div class="ph"><div><h2>Staff Directory</h2><p>View and manage hospital doctors, nurses, and support personnel</p></div>
+        <button class="btn btn-p btn-sm" onclick="openM('m-s')">+ Add Staff Member</button></div>
+      <div class="toolbar">
+        <div class="sb"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="si" id="s-q" placeholder="Search by name, role, or department..." oninput="rS()"/></div>
+        <select class="sf" id="s-f" onchange="rS()"><option value="">All Roles</option><option>Doctor</option><option>Nurse</option><option>Receptionist</option><option>Lab Technician</option><option>Pharmacist</option></select>
+      </div>
+      <div class="card"><table class="tbl"><thead><tr><th>Name</th><th>Role</th><th>Department</th><th>Contact</th><th>Availability</th><th></th></tr></thead><tbody id="sb"></tbody></table></div>
+    </div>
+
+    <!-- BILLING -->
+    <div class="page" id="page-billing">
+      <div class="ph"><div><h2>Billing &amp; Payments</h2><p>Create and manage patient bills and monitor payment status</p></div>
+        <button class="btn btn-p btn-sm" onclick="openM('m-b')">+ Create Bill</button></div>
+      <div class="toolbar">
+        <div class="sb"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="si" id="b-q" placeholder="Search by patient name or bill ID..." oninput="rB()"/></div>
+        <select class="sf" id="b-f" onchange="rB()"><option value="">All Status</option><option>Paid</option><option>Pending</option><option>Partial</option></select>
+      </div>
+      <div class="card"><table class="tbl"><thead><tr><th>Bill ID</th><th>Patient</th><th>Date</th><th>Services</th><th>Amount</th><th>Status</th><th></th></tr></thead><tbody id="bb"></tbody></table></div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- MODAL: PATIENT -->
+<div class="overlay" id="m-p">
+  <div class="modal">
+    <div class="mh"><h3>Register New Patient</h3><button class="mc" onclick="closeM('m-p')">✕</button></div>
+    <div class="mb"><div class="fg-grid">
+      <div class="fg"><label>Full Name <span class="req">*</span></label><input class="fc" id="pn" placeholder="Patient's full name"/></div>
+      <div class="fg"><label>Age <span class="req">*</span></label><input class="fc" id="pa" type="number" placeholder="Age" min="0"/></div>
+      <div class="fg"><label>Gender</label><select class="fc" id="pg"><option>Male</option><option>Female</option><option>Other</option></select></div>
+      <div class="fg"><label>Phone <span class="req">*</span></label><input class="fc" id="pp" type="tel" placeholder="Contact number"/></div>
+      <div class="fg"><label>Blood Group</label><select class="fc" id="pb2"><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option><option>Unknown</option></select></div>
+      <div class="fg"><label>Status</label><select class="fc" id="ps"><option>Active</option><option>Admitted</option><option>Discharged</option></select></div>
+      <div class="fg full"><label>Address</label><textarea class="fc" id="pad" placeholder="Full residential address"></textarea></div>
+      <div class="fg full"><label>Medical Notes</label><textarea class="fc" id="pmn" placeholder="Known allergies, conditions, or important notes"></textarea></div>
+    </div></div>
+    <div class="mf"><button class="btn btn-g btn-sm" onclick="closeM('m-p')">Cancel</button><button class="btn btn-p btn-sm" onclick="addP()">Register Patient</button></div>
+  </div>
+</div>
+
+<!-- MODAL: APPOINTMENT -->
+<div class="overlay" id="m-a">
+  <div class="modal">
+    <div class="mh"><h3>Schedule Appointment</h3><button class="mc" onclick="closeM('m-a')">✕</button></div>
+    <div class="mb"><div class="fg-grid">
+      <div class="fg"><label>Patient Name <span class="req">*</span></label><input class="fc" id="an" placeholder="Patient's full name"/></div>
+      <div class="fg"><label>Physician <span class="req">*</span></label><input class="fc" id="ad" placeholder="Doctor's name"/></div>
+      <div class="fg"><label>Date <span class="req">*</span></label><input class="fc" id="adt" type="date"/></div>
+      <div class="fg"><label>Time <span class="req">*</span></label><input class="fc" id="atm" type="time"/></div>
+      <div class="fg"><label>Department</label><select class="fc" id="adp"><option>General Medicine</option><option>Cardiology</option><option>Orthopedics</option><option>Pediatrics</option><option>Neurology</option><option>Gynecology</option><option>Emergency</option><option>Dermatology</option><option>Oncology</option></select></div>
+      <div class="fg"><label>Priority</label><select class="fc" id="apr"><option>Routine</option><option>Urgent</option><option>Emergency</option></select></div>
+      <div class="fg full"><label>Reason for Visit</label><textarea class="fc" id="ars" placeholder="Describe symptoms or reason for consultation"></textarea></div>
+    </div></div>
+    <div class="mf"><button class="btn btn-g btn-sm" onclick="closeM('m-a')">Cancel</button><button class="btn btn-p btn-sm" onclick="addA()">Schedule Appointment</button></div>
+  </div>
+</div>
+
+<!-- MODAL: STAFF -->
+<div class="overlay" id="m-s">
+  <div class="modal">
+    <div class="mh"><h3>Add Staff Member</h3><button class="mc" onclick="closeM('m-s')">✕</button></div>
+    <div class="mb"><div class="fg-grid">
+      <div class="fg"><label>Full Name <span class="req">*</span></label><input class="fc" id="sn" placeholder="e.g. Dr. Priya Sharma"/></div>
+      <div class="fg"><label>Role</label><select class="fc" id="sr"><option>Doctor</option><option>Nurse</option><option>Receptionist</option><option>Lab Technician</option><option>Pharmacist</option><option>Radiologist</option><option>Administrator</option></select></div>
+      <div class="fg"><label>Department</label><select class="fc" id="sd"><option>General Medicine</option><option>Cardiology</option><option>Orthopedics</option><option>Pediatrics</option><option>Neurology</option><option>Gynecology</option><option>Emergency</option><option>Radiology</option><option>Administration</option></select></div>
+      <div class="fg"><label>Phone</label><input class="fc" id="sph" type="tel" placeholder="Contact number"/></div>
+      <div class="fg"><label>Email</label><input class="fc" id="sem" type="email" placeholder="Work email"/></div>
+      <div class="fg"><label>Availability</label><select class="fc" id="sa"><option>Available</option><option>On Duty</option><option>On Leave</option></select></div>
+    </div></div>
+    <div class="mf"><button class="btn btn-g btn-sm" onclick="closeM('m-s')">Cancel</button><button class="btn btn-p btn-sm" onclick="addS()">Add Staff Member</button></div>
+  </div>
+</div>
+
+<!-- MODAL: BILL -->
+<div class="overlay" id="m-b">
+  <div class="modal">
+    <div class="mh"><h3>Create Bill</h3><button class="mc" onclick="closeM('m-b')">✕</button></div>
+    <div class="mb"><div class="fg-grid">
+      <div class="fg"><label>Patient Name <span class="req">*</span></label><input class="fc" id="bpn" placeholder="Patient's full name"/></div>
+      <div class="fg"><label>Bill Date</label><input class="fc" id="bdt" type="date"/></div>
+      <div class="fg full"><label>Services Rendered</label><input class="fc" id="bsv" placeholder="e.g. Consultation, X-Ray, Blood Panel, Medication"/></div>
+      <div class="fg"><label>Total Amount (₹) <span class="req">*</span></label><input class="fc" id="bam" type="number" placeholder="0" min="0"/></div>
+      <div class="fg"><label>Payment Status</label><select class="fc" id="bst"><option>Paid</option><option>Pending</option><option>Partial</option></select></div>
+      <div class="fg full"><label>Additional Notes</label><textarea class="fc" id="bnt" placeholder="Insurance details, payment notes, etc."></textarea></div>
+    </div></div>
+    <div class="mf"><button class="btn btn-g btn-sm" onclick="closeM('m-b')">Cancel</button><button class="btn btn-p btn-sm" onclick="addB()">Save Bill</button></div>
+  </div>
+</div>
+
+<script>
+let P=JSON.parse(localStorage.getItem('h3_p')||'[]');
+let A=JSON.parse(localStorage.getItem('h3_a')||'[]');
+let S=JSON.parse(localStorage.getItem('h3_s')||'[]');
+let B=JSON.parse(localStorage.getItem('h3_b')||'[]');
+let C=JSON.parse(localStorage.getItem('h3_c')||'{"p":1000,"a":2000,"s":3000,"b":4000}');
+
+function save(){localStorage.setItem('h3_p',JSON.stringify(P));localStorage.setItem('h3_a',JSON.stringify(A));localStorage.setItem('h3_s',JSON.stringify(S));localStorage.setItem('h3_b',JSON.stringify(B));localStorage.setItem('h3_c',JSON.stringify(C));document.getElementById('cnt-p').textContent=P.length;document.getElementById('cnt-a').textContent=A.filter(x=>x.status==='Scheduled').length;}
+
+let cur='dashboard';
+const TT={dashboard:'Dashboard',patients:'Patients',appointments:'Appointments',staff:'Staff Directory',billing:'Billing & Payments'};
+const TS={dashboard:'Overview & Summary',patients:'Patient Records',appointments:'Appointment Schedule',staff:'Personnel Management',billing:'Billing & Payments'};
+
+function goTo(page,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nl').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  if(btn)btn.classList.add('active');
+  document.getElementById('ptitle').textContent=TT[page];
+  document.getElementById('psub').textContent=TS[page];
+  cur=page;
+  document.getElementById('tbadd').style.display=page!=='dashboard'?'inline-flex':'none';
+  if(page==='dashboard')rd();
+  if(page==='patients')rP();
+  if(page==='appointments')rA();
+  if(page==='staff')rS();
+  if(page==='billing')rB();
+}
+
+function topAdd(){const m={patients:'m-p',appointments:'m-a',staff:'m-s',billing:'m-b'};if(m[cur])openM(m[cur]);}
+function openM(id){document.getElementById(id).classList.add('open');}
+function closeM(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+
+const now=new Date();
+const MO=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DA=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+document.getElementById('ws-day').textContent=now.getDate();
+document.getElementById('ws-mo').textContent=MO[now.getMonth()]+' '+now.getFullYear();
+document.getElementById('ws-full').textContent=DA[now.getDay()]+', '+MO[now.getMonth()]+' '+now.getDate()+', '+now.getFullYear();
+
+const PAL=['#1d6fa4','#276749','#7c3aed','#c05621','#9b2335','#0288d1'];
+function col(n){let h=0;for(let c of n)h+=c.charCodeAt(0);return PAL[h%PAL.length];}
+function ini(n){return n.trim().split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2);}
+function av(n){return `<div class="av" style="background:${col(n)}">${ini(n)}</div>`;}
+function avc(n,sub=''){return `<div class="avc">${av(n)}<div><div class="primary">${n}</div>${sub?`<div class="secondary">${sub}</div>`:''}</div></div>`;}
+
+const BM={Active:'bg',Admitted:'bb',Discharged:'bgy',Paid:'bg',Pending:'br',Partial:'bo',Available:'bg','On Duty':'bb','On Leave':'bgy',Scheduled:'bb',Completed:'bg',Cancelled:'br',Routine:'bgy',Urgent:'bo',Emergency:'br'};
+function badge(s){return `<span class="badge ${BM[s]||'bgy'}">${s}</span>`;}
+function erow(c,m){return `<tr class="erow"><td colspan="${c}">${m}</td></tr>`;}
+
+function rd(){
+  const today=new Date().toISOString().split('T')[0];
+  const ta=A.filter(x=>x.date===today);
+  const rev=B.filter(x=>x.status==='Paid').reduce((s,x)=>s+Number(x.amount),0);
+  document.getElementById('d-p').textContent=P.length;
+  document.getElementById('d-a').textContent=ta.length;
+  document.getElementById('d-s').textContent=S.length;
+  document.getElementById('d-r').textContent='₹'+rev.toLocaleString('en-IN');
+  document.getElementById('da-ct').textContent=A.length+' records';
+  document.getElementById('db-ct').textContent=B.length+' records';
+  document.getElementById('db-p').style.width=Math.min(P.length*5,100)+'%';
+  document.getElementById('db-a').style.width=Math.min(A.length*8,100)+'%';
+  document.getElementById('db-s').style.width=Math.min(S.length*10,100)+'%';
+  document.getElementById('db-r').style.width=Math.min(rev/2000,100)+'%';
+  const ab=document.getElementById('d-ab');
+  const ra=[...A].reverse().slice(0,5);
+  ab.innerHTML=ra.length?ra.map(x=>`<tr><td>${avc(x.patient)}</td><td><span class="secondary">${x.doctor}</span></td><td><span class="secondary">${x.time}</span></td><td>${badge(x.status)}</td></tr>`).join(''):erow(4,'No appointments have been recorded yet.');
+  const bb=document.getElementById('d-bb');
+  const rb=[...B].reverse().slice(0,5);
+  bb.innerHTML=rb.length?rb.map(x=>`<tr><td>${avc(x.patient)}</td><td><span class="primary">₹${Number(x.amount).toLocaleString('en-IN')}</span></td><td>${badge(x.status)}</td></tr>`).join(''):erow(3,'No billing records have been created yet.');
+}
+
+function addP(){
+  const name=document.getElementById('pn').value.trim();
+  const age=document.getElementById('pa').value;
+  const phone=document.getElementById('pp').value.trim();
+  if(!name||!age||!phone){toast('Please complete all required fields.');return;}
+  C.p++;
+  P.push({id:'P'+C.p,name,age,phone,gender:document.getElementById('pg').value,blood:document.getElementById('pb2').value,status:document.getElementById('ps').value,address:document.getElementById('pad').value,notes:document.getElementById('pmn').value,date:new Date().toISOString().split('T')[0]});
+  save();closeM('m-p');rP();['pn','pa','pp','pad','pmn'].forEach(i=>document.getElementById(i).value='');
+  toast('Patient registered successfully.');
+}
+
+function rP(){
+  const q=document.getElementById('p-q').value.toLowerCase();
+  const f=document.getElementById('p-f').value;
+  const fl=P.filter(x=>(x.name.toLowerCase().includes(q)||x.id.toLowerCase().includes(q)||x.phone.includes(q))&&(!f||x.status===f));
+  const tb=document.getElementById('pb');
+  if(!fl.length){tb.innerHTML=erow(6,'No patients found matching your search criteria.');return;}
+  tb.innerHTML=[...fl].reverse().map(p=>`
+    <tr><td>${avc(p.name,p.id)}</td><td>${p.age} yrs / ${p.gender}</td><td>${p.phone}</td>
+    <td><span class="badge br" style="background:#fff0f0">${p.blood}</span></td>
+    <td>${badge(p.status)}</td>
+    <td><div style="display:flex;gap:6px">
+      <select class="ins" onchange="upPS('${p.id}',this.value)">${['Active','Admitted','Discharged'].map(s=>`<option ${p.status===s?'selected':''}>${s}</option>`).join('')}</select>
+      <button class="btn btn-g btn-sm" onclick="del('P','${p.id}')">Remove</button>
+    </div></td></tr>`).join('');
+}
+function upPS(id,v){const x=P.find(p=>p.id===id);if(x){x.status=v;save();toast('Patient status updated.');}}
+
+function addA(){
+  const name=document.getElementById('an').value.trim();
+  const doc=document.getElementById('ad').value.trim();
+  const date=document.getElementById('adt').value;
+  const time=document.getElementById('atm').value;
+  if(!name||!doc||!date||!time){toast('Please complete all required fields.');return;}
+  C.a++;
+  A.push({id:'A'+C.a,patient:name,doctor:doc,date,time,dept:document.getElementById('adp').value,priority:document.getElementById('apr').value,reason:document.getElementById('ars').value,status:'Scheduled'});
+  save();closeM('m-a');rA();rd();['an','ad','adt','atm','ars'].forEach(i=>document.getElementById(i).value='');
+  toast('Appointment scheduled successfully.');
+}
+
+function rA(){
+  const q=document.getElementById('a-q').value.toLowerCase();
+  const f=document.getElementById('a-f').value;
+  const fl=A.filter(x=>(x.patient.toLowerCase().includes(q)||x.doctor.toLowerCase().includes(q))&&(!f||x.status===f));
+  const tb=document.getElementById('ab');
+  if(!fl.length){tb.innerHTML=erow(7,'No appointments found.');return;}
+  tb.innerHTML=[...fl].reverse().map(a=>`
+    <tr><td>${avc(a.patient)}</td>
+    <td><div class="primary">${a.doctor}</div><div class="secondary">${a.dept}</div></td>
+    <td><div class="primary">${a.date}</div><div class="secondary">${a.time}</div></td>
+    <td><span class="secondary">${a.dept}</span></td>
+    <td>${a.priority!=='Routine'?badge(a.priority):'<span class="secondary">Routine</span>'}</td>
+    <td><select class="ins" onchange="upAS('${a.id}',this.value)">${['Scheduled','Completed','Cancelled'].map(s=>`<option ${a.status===s?'selected':''}>${s}</option>`).join('')}</select></td>
+    <td><button class="btn btn-g btn-sm" onclick="del('A','${a.id}')">Remove</button></td></tr>`).join('');
+}
+function upAS(id,v){const x=A.find(a=>a.id===id);if(x){x.status=v;save();rd();toast('Appointment status updated.');}}
+
+function addS(){
+  const name=document.getElementById('sn').value.trim();
+  if(!name){toast('Please enter the staff member\'s name.');return;}
+  C.s++;
+  S.push({id:'S'+C.s,name,role:document.getElementById('sr').value,dept:document.getElementById('sd').value,phone:document.getElementById('sph').value,email:document.getElementById('sem').value,avail:document.getElementById('sa').value});
+  save();closeM('m-s');rS();rd();['sn','sph','sem'].forEach(i=>document.getElementById(i).value='');
+  toast('Staff member added to directory.');
+}
+
+function rS(){
+  const q=document.getElementById('s-q').value.toLowerCase();
+  const f=document.getElementById('s-f').value;
+  const fl=S.filter(x=>(x.name.toLowerCase().includes(q)||x.dept.toLowerCase().includes(q)||x.role.toLowerCase().includes(q))&&(!f||x.role===f));
+  const tb=document.getElementById('sb');
+  if(!fl.length){tb.innerHTML=erow(6,'No staff members found.');return;}
+  tb.innerHTML=fl.map(s=>`
+    <tr><td>${avc(s.name,s.id)}</td>
+    <td>${badge(s.role==='Doctor'?'bb':s.role==='Nurse'?'bg':'bgy')} <span style="font-size:0.78rem;color:var(--text-sub);margin-left:4px">${s.role}</span></td>
+    <td>${s.dept}</td>
+    <td><div class="primary">${s.phone||'—'}</div><div class="secondary">${s.email||''}</div></td>
+    <td><select class="ins" onchange="upSA('${s.id}',this.value)">${['Available','On Duty','On Leave'].map(a=>`<option ${s.avail===a?'selected':''}>${a}</option>`).join('')}</select></td>
+    <td><button class="btn btn-g btn-sm" onclick="del('S','${s.id}')">Remove</button></td></tr>`).join('');
+}
+function upSA(id,v){const x=S.find(s=>s.id===id);if(x){x.avail=v;save();toast('Availability updated.');}}
+
+function addB(){
+  const name=document.getElementById('bpn').value.trim();
+  const amount=document.getElementById('bam').value;
+  if(!name||!amount){toast('Please complete all required fields.');return;}
+  C.b++;
+  B.push({id:'B'+C.b,patient:name,date:document.getElementById('bdt').value||new Date().toISOString().split('T')[0],services:document.getElementById('bsv').value||'General Services',amount:Number(amount),status:document.getElementById('bst').value,notes:document.getElementById('bnt').value});
+  save();closeM('m-b');rB();rd();['bpn','bdt','bsv','bam','bnt'].forEach(i=>document.getElementById(i).value='');
+  toast('Bill created successfully.');
+}
+
+function rB(){
+  const q=document.getElementById('b-q').value.toLowerCase();
+  const f=document.getElementById('b-f').value;
+  const fl=B.filter(x=>(x.patient.toLowerCase().includes(q)||x.id.toLowerCase().includes(q))&&(!f||x.status===f));
+  const tb=document.getElementById('bb');
+  if(!fl.length){tb.innerHTML=erow(7,'No billing records found.');return;}
+  tb.innerHTML=[...fl].reverse().map(b=>`
+    <tr><td><span class="secondary">${b.id}</span></td>
+    <td>${avc(b.patient)}</td>
+    <td>${b.date}</td>
+    <td style="max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-sub)">${b.services}</td>
+    <td><span class="primary">₹${Number(b.amount).toLocaleString('en-IN')}</span></td>
+    <td><select class="ins" onchange="upBS('${b.id}',this.value)">${['Paid','Pending','Partial'].map(s=>`<option ${b.status===s?'selected':''}>${s}</option>`).join('')}</select></td>
+    <td><button class="btn btn-g btn-sm" onclick="del('B','${b.id}')">Remove</button></td></tr>`).join('');
+}
+function upBS(id,v){const x=B.find(b=>b.id===id);if(x){x.status=v;save();rd();toast('Payment status updated.');}}
+
+function del(type,id){
+  if(!confirm('Remove this record? This cannot be undone.'))return;
+  if(type==='P')P=P.filter(x=>x.id!==id);
+  if(type==='A')A=A.filter(x=>x.id!==id);
+  if(type==='S')S=S.filter(x=>x.id!==id);
+  if(type==='B')B=B.filter(x=>x.id!==id);
+  save();
+  if(type==='P')rP();if(type==='A')rA();if(type==='S')rS();if(type==='B')rB();
+  rd();toast('Record removed from the system.');
+}
+
+save();rd();
+</script>
+</body>
+</html>
